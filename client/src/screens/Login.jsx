@@ -14,7 +14,7 @@ const Login =  ()=>{
     const handleSubmit = useCallback(async(e)=>{
         e.preventDefault()
         try{
-            await axios.post('http://localhost:8000/user/login',{
+            await axios.post('/user/login',{
                 email:email,
                 password:pass
             },{

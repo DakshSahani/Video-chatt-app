@@ -17,7 +17,7 @@ const SignUp =  ()=>{
     const handleSubmit = useCallback(async (e)=>{
         e.preventDefault()
         setLoading(true);
-        await axios.post('http://localhost:8000/user/signup',{
+        await axios.post('/user/signup',{
             name:name,
             email:email,
             password:pass

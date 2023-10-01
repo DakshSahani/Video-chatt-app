@@ -12,7 +12,7 @@ const Auth = ({children})=>{
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    axios.get('http://localhost:8000/user/isLogin',{withCredentials:true})
+    axios.get('/user/isLogin',{withCredentials:true})
     .then(()=>{
         setLoading(false)
     }).catch(err=>{

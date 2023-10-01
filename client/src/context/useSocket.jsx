@@ -5,7 +5,7 @@ const socketIoContext = createContext(null);
 
 function SocketIoProvider({children}){
     const socket = useMemo(()=>
-        io('http://localhost:8000')
+        io('/')
     ,[])
     const [user,setUser] = useState({
         name:"",
