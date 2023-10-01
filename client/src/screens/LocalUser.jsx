@@ -1,8 +1,8 @@
 import {useState, useEffect, useCallback} from 'react'
 import ReactPlayer from 'react-player';
 import Room from './RemoteUser.jsx'
+import Button from '../utils/Button.jsx';
 
-const BUTTONCLASS = "bg-indigo-500 rounded-md shadow-lg m-2 p-1 text-white";
 const quality = {
     video:{
         height:{min:640,ideal:1920,max:1920},
@@ -16,7 +16,7 @@ function Ready(){
     const [cameraState,setCameraState] = useState(true)
     const [micState,setMicState] = useState(true)
     const [ready,setReady] = useState(false)
-    
+
     useEffect(()=>{
         // console.log(PARAM);
         navigator.mediaDevices.getUserMedia(quality)
@@ -45,21 +45,21 @@ function Ready(){
         console.log('mic state changed')
     },[localStream, micState])
     
-    const handleLeave = useCallback(()=>{
-        if(localStream){
-            const track = localStream.getTracks()
-            track.enabled = false
-            setCameraState(false);
-        }
-        console.log('Leave')
-    },[localStream])
+    // const handleLeave = useCallback(()=>{
+    //     if(localStream){
+    //         const track = localStream.getTracks()
+    //         track.enabled = false
+    //         setCameraState(false);
+    //     }
+    //     console.log('Leave')
+    // },[localStream])
 
     const handleReady = ()=>{
         setReady(true);
     }
 
     return<>
-    <div>
+    <div className="min-h-[100vh]">
         <h1>Room</h1>
         <ReactPlayer 
             // muted
@@ -67,15 +67,16 @@ function Ready(){
             playsinline
             url={localStream}
         />
-        <button className={BUTTONCLASS} onClick={handleCamera}>camera</button>
-        <button className={BUTTONCLASS} onClick={handleMic}>mic</button>
-        <button className={BUTTONCLASS} onClick={handleLeave}>leave</button>
+        <Button primary={cameraState} secondary={!cameraState} rounded className="m-2" onClick={handleCamera}>Camera</Button>
+        <Button primary={micState} secondary={!micState} rounded className="m-2" onClick={handleMic}>Mic</Button>
+        {/* <Button primary rounded className="m-2" onClick={handleLeave}>leave</Button> */}
         <br />
-        {!ready && <button className={BUTTONCLASS} onClick={handleReady}>Ready</button>}
-    </div>
+        {!ready && <Button primary rounded className="m-2" onClick={handleReady}>Ready</Button>}
         {ready && <Room 
             localStream={localStream}
+            setReady = {setReady}
         />}
+    </div>
     </>
 }
 

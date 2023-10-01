@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
-import useSocket from '../context/useSocket.jsx';
-import Header from './Header.jsx'
+import {useSocket} from '../context/useSocket.jsx';
 import {useNavigate} from 'react-router-dom'
+import Button from "../utils/Button.jsx";
+import Form from "../utils/Form.jsx";
+import MainPageTemplate from "../utils/HomePageTemplate.jsx";
+import Input from "../utils/Input.jsx";
 
 function Lobby(){
     const [email,setEmail] = useState('');
     const [roomId,setRoomId] = useState('');
     const navigate = useNavigate();
-    // eslint-disable-next-line no-unused-vars
+
     const socket = useSocket();
 
     const handleSubmit = (e)=>{
@@ -33,28 +36,19 @@ function Lobby(){
     
 
     return <>
-        <Header />
-        <form onSubmit={handleSubmit}>
-            <label htmlFor="email">Email ID</label>
-            <input
-                className="border-black border-2" 
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e)=>{setEmail(e.target.value)}}
-             />
-             <br />
-             <label htmlFor="room">Room ID</label>
-             <input 
-                className="border-black border-2" 
-                type="text"
-                id="room"
-                value={roomId}
-                onChange={(e)=>{setRoomId(e.target.value)}}
-             />
-             <br />
-             <button onClick={handleSubmit}>join</button>
-        </form>
+        <MainPageTemplate>
+        <Form onSubmit={handleSubmit} className = "text-center">
+            <Input type="text" id="lobby-email" label="Name" state={{
+                value:email,
+                set:setEmail
+            }}/>
+            <Input type="text" id="lobby-room" label="Room Id" state={{
+                value:roomId,
+                set:setRoomId
+            }}/>
+            <Button primary onClick={handleSubmit}>join</Button>
+        </Form>
+    </MainPageTemplate>
     </>
 }
 

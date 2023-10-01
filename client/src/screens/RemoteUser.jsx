@@ -1,7 +1,8 @@
 import { useEffect, useState , useCallback} from "react";
 // import {Params} from 'react-router-dom'
 import ReactPlayer from 'react-player'
-import useSocket from "../context/useSocket";
+import {useSocket} from "../context/useSocket";
+import Button from "../utils/Button";
 
 
 // const PARAM = Params; 
@@ -10,16 +11,16 @@ const BUTTONCLASS = "bg-indigo-500 rounded-md shadow-lg m-2 p-1 text-white";
 
 
 // eslint-disable-next-line react/prop-types
-function Room({localStream}){
+function Room({localStream, setReady}){
     const [remoteStream,setRemoteStream] = useState()
     const [peerConn] = useState(new RTCPeerConnection(CONFIG))
     const socket = useSocket();
     // console.log('PARAM', PARAM);
-    console.log('remoteStream',remoteStream);
+    // console.log('remoteStream',remoteStream);
 
     const createConnection = useCallback(async ()=>{
-        console.log('conn',peerConn)
-        if(localStream){
+        // console.log('conn',peerConn)
+        if(localStream && peerConn && peerConn.signalingState!=='closed'){
             console.log('local stream',localStream)
             // eslint-disable-next-line react/prop-types
             localStream.getTracks().forEach((track)=>{
@@ -38,8 +39,8 @@ function Room({localStream}){
     
     const createOffer = useCallback(async()=>{
         createConnection();
-        if(peerConn){
-            console.log('creating offer')
+        if(peerConn && peerConn && peerConn.signalingState!=='closed'){
+            // console.log('creating offer')
             const offer = await peerConn.createOffer()
             peerConn.setLocalDescription(new RTCSessionDescription(offer));
             console.log('offer created waiting to send',offer);
@@ -49,8 +50,8 @@ function Room({localStream}){
     
     const createAnswer = useCallback(async (offer)=>{
         createConnection();
-        console.log('creating answer')
-        if(peerConn){
+        // console.log('creating answer')
+        if(peerConn && peerConn && peerConn.signalingState!=='closed'){
             const session = new RTCSessionDescription(offer)
             peerConn.setRemoteDescription(session)
             const answer = await peerConn.createAnswer()
@@ -61,20 +62,29 @@ function Room({localStream}){
     },[createConnection, socket, peerConn])
     
     const setAnswer =  useCallback((answer)=>{
-        console.log('setting answer')
-        if(!peerConn.currentRemoteDescription)
+        // console.log('setting answer')
+        if(peerConn.signalingState!=='closed' &&!peerConn.currentRemoteDescription)
             peerConn.setRemoteDescription(new RTCSessionDescription(answer))
     },[peerConn])
 
     const setIce =  useCallback((candidates)=>{
-        if(peerConn) {
-            console.log(candidates)
+        if(peerConn && peerConn.signalingState!=='closed') {
+            // console.log(candidates)
         // candidates.candidates.forEach(candidate => {
             peerConn.addIceCandidate(new RTCIceCandidate(candidates))
             .catch(error => console.error('Error adding ICE candidate:', error));
             // });
         }
     },[peerConn])
+    const handleClose =  useCallback(()=>{
+        if(peerConn && peerConn.signalingState!=='closed') {
+            // console.log(candidates)
+        // candidates.candidates.forEach(candidate => {
+            peerConn.close();
+            setReady(false)
+            // });
+        }
+    },[peerConn, setReady])
         
     useEffect(()=>{
         socket.on('remoteUser-ready',createOffer)
@@ -103,14 +113,26 @@ function Room({localStream}){
             socket.off('receive-ice',setIce)
         }
     },[setIce, socket])
+    useEffect(()=>{
+        socket.on('receive-close', handleClose)
+        
+        return ()=>{
+            socket.off('receive-close',handleClose)
+        }
+    },[socket, handleClose])
     
     // if(isLoading)return <div>Loading....</div>;
-    const handleStop = ()=>{
-        // eslint-disable-next-line react/prop-types
-        localStream.getTracks().forEach((track)=>{
-            track.stop();
-        })
-    }
+    // const handleStop = ()=>{
+    //     localStream.getTracks().forEach((track)=>{
+    //         track.enabled = stop
+    //         setStop(!stop)
+    //     })
+    // }
+    const handleLeave = useCallback(()=>{
+        peerConn.close();
+        setReady(false);
+        socket.emit('close')
+    },[peerConn, setReady, socket])
 
 
     return <div>
@@ -123,7 +145,8 @@ function Room({localStream}){
         />
         </>
         }
-        <button className={BUTTONCLASS} onClick={handleStop}>stop</button>
+        <Button primary rounded className="m-2" onClick={handleLeave}>leave</Button>
+        {/* <Button primary className={BUTTONCLASS} onClick={handleStop}>stop</Button> */}
         {/* <button className={BUTTONCLASS} onClick={handleSwitch}>switch</button>         */}
     </div>
 }

@@ -1,21 +1,30 @@
-import {createContext, useMemo, useContext} from 'react'
+import {createContext, useMemo, useContext, useState} from 'react'
 import { io } from 'socket.io-client';
 
 const socketIoContext = createContext(null);
-const useSocket = ()=>{
-    return useContext(socketIoContext);
-}
-//FIXME:
-// eslint-disable-next-line react/prop-types
+
 function SocketIoProvider({children}){
     const socket = useMemo(()=>
         io('http://localhost:8000')
     ,[])
+    const [user,setUser] = useState({
+        name:"",
+        email:""
+    })
  
-    return <socketIoContext.Provider value={socket}> 
+    return <socketIoContext.Provider value={{socket,user,setUser}}> 
         {children}
     </socketIoContext.Provider>
 }
 
-export default useSocket
-export {SocketIoProvider}
+const useSocket = ()=>{
+    const {socket} = useContext(socketIoContext);
+    return socket;
+}
+
+const useUser = ()=>{
+    const {user,setUser} = useContext(socketIoContext);
+    return [user, setUser];
+}
+
+export {SocketIoProvider, useUser, useSocket}
