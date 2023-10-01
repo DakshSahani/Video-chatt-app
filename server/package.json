@@ -4,6 +4,8 @@
   "description": "Video Chatt app",
   "main": "server.js",
   "scripts": {
+    "install-build-client":"cd ../client && npm install && npm run build",
+    "build-server":"npm run install-build-client && npm install",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js"
   },

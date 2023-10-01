@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 
+const path = require('path')
 const morgan = require('morgan');
 const cors = require('cors');
 const cookieParser = require('cookie-parser')
@@ -21,19 +22,22 @@ app.use(express.json());
 app.use(cors(corsOptions))
 app.use(cookieParser())
 
+app.use(express.static(path.join(__dirname , "../client/build")))
+
 //Routes
-app.get('/',(req,res)=>{
-    res.status(200).send("Testing Route")
-})
 
 app.use('/user',usersRouter)
 
-app.all('*',(req,res,next)=>{
-    next(new appError(
-        `This route is not defined`,
-        404));
+app.get('/',(req,res)=>{
+    res.sendFile(path.join(__dirname, '../client/build', '/index.html'))
 })
 
+app.all('*',(req,res,next)=>{
+    next(new appError(
+    `This route is not defined`,
+    404));
+})
+    
 app.use(errorController);
 
 module.exports = app;
