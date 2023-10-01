@@ -20,7 +20,7 @@ const Login =  ()=>{
             },{
                 withCredentials:true
             })
-            navigate('/lobby')
+            navigate('/')
         }catch(err){
             window.alert(err.message)
         }

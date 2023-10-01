@@ -23,7 +23,7 @@ const SignUp =  ()=>{
             password:pass
         }).then(()=>{
             setLoading(false)
-            navigate('/lobby')
+            navigate('/')
         }).catch(err=>{
             window.alert(err.message)
             setLoading(false)
